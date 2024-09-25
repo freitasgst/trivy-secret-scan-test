@@ -1,0 +1,85 @@
+name: Trivy Scan
+
+on:
+  pull_request: 
+    branches:
+        - main
+
+jobs: 
+  trivy-fs:
+    name: Scan filesystem
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        
+      - name: Scan filesystem
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scanners: secret, vuln
+          hide-progress: true
+          output: trivy-results.txt
+        
+      - name: Check Trivy result file
+        run: cat trivy-results.txt
+        
+      - name: Publish scan results to summary
+        run: |
+          if [ -s trivy-results.txt ]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          else 
+            {
+              echo "### Security Output"
+              echo "No vulnerabilities were detected."
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+  
+  trivy-repo:
+    name: Scan repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+          
+      - name: Scan repository
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: repo
+          hide-progress: true
+          output: trivy-results.txt
+      
+      - name: Publish scan results to summary
+        run: |
+          if [ -s trivy-results.txt ]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          else 
+            {
+              echo "### Security Output"
+              echo "No vulnerabilities were detected."
+            } >> $GITHUB_STEP_SUMMARY
+          fi
