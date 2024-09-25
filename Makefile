@@ -4,6 +4,8 @@ export PYTHONPATH   := $(PROJECT_PATH):tests/fixtures
 export VIRTUALENV   := $(PWD)/.venv
 export PATH         := $(VIRTUALENV)/bin:$(PATH)
 
+export mailchimp_api_key := 83eace343fbab21a80b216d2d6e9d0a9-us12
+
 # fix make <= 3.81 (macOS and old Linux distros)
 ifeq ($(filter undefine,$(value .FEATURES)),)
 SHELL = env PATH="$(PATH)" /bin/bash
